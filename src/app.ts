@@ -25,7 +25,7 @@ const generateUniqueUserId = (name: string, email: string): string =>  {
 
 app.get("/users", async (req, res) => {
   try {
-    const result = await pool.query<User>("SELECT * FROM std_schema.users");
+    const result = await pool.query<User>("SELECT * FROM users");
     res.json(result.rows);
   } catch (err) {
     console.error("Erro ao consultar o banco de dados:", err);
@@ -37,8 +37,8 @@ app.post("/users", async (req: Request, res: Response) => {
   try {
     const { name, email, password, birthdate } = req.body;
 
-      const userExists = await pool.query(
-      "SELECT * FROM std_schema.users WHERE email = $1",
+    const userExists = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
       [email]
     );
 
@@ -52,7 +52,7 @@ app.post("/users", async (req: Request, res: Response) => {
     const userId = generateUniqueUserId(name, email);
 
     const result = await pool.query(
-      "INSERT INTO std_schema.users (uuid, name, email, password, birthdate) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      "INSERT INTO users (uuid, name, email, password, birthdate) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [userId, name, email, hashedPassword, birthdate]
     );
 
@@ -69,7 +69,7 @@ app.post("/login", async (req: Request, res: Response) => {
 
     // Verificar se o usuário com o email fornecido existe no banco de dados
     const user = await pool.query(
-      "SELECT * FROM std_schema.users WHERE email = $1",
+      "SELECT * FROM users WHERE email = $1",
       [email]
     );
 
