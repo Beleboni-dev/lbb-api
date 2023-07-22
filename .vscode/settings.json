@@ -1,5 +1,27 @@
 {
     "cSpell.words": [
         "birthdate"
+    ],
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "lbbdatabase",
+            "database": "lbbdatabase",
+            "username": "alpyroot",
+            "password": "Lucas246810@"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "database": "lbbdatabase",
+            "username": "alpyroot",
+            "name": "lbbdbacess"
+        }
     ]
 }

@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2021",
+    "target": "es6",
     "module": "commonjs",
-    "outDir": "dist",
+    "outDir": "./dist", // pasta de saída dos arquivos transpilados
+    "rootDir": "./src", // pasta de entrada dos arquivos TypeScript
     "strict": true,
     "esModuleInterop": true
   },
-  "include": ["src", "src/types"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }
