@@ -1,5 +1,5 @@
 import { Knex } from "knex";
-
+import * as path from "path";
 type KnexConfig = Record<string, Knex.Config>;
 
 const kConfig: KnexConfig = {
@@ -14,14 +14,14 @@ const kConfig: KnexConfig = {
       password: "Alpy246810@", // Substitua pela senha do usuário do banco de dados local (opcional para desenvolvimento)
     },
     migrations: {
-      directory: "./migrations", // Diretório onde as migrações serão armazenadas
+      directory: path.resolve(__dirname, "src", "migrations"), // Caminho absoluto do diretório de migrações dentro da pasta 'src'
     },
   },
   production: {
     client: "pg", // Especifica o cliente PostgreSQL
     connection: process.env.DATABASE_URL, // Usa a variável de ambiente DATABASE_URL
     migrations: {
-      directory: "./migrations", // Diretório onde as migrações serão armazenadas
+      directory: path.resolve(__dirname, "src", "migrations"), // Caminho absoluto do diretório de migrações dentro da pasta 'src'
     },
   },
 };
