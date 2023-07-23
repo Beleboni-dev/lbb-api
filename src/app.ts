@@ -1,10 +1,10 @@
 import express, { Request, Response } from "express";
-import bcrypt from 'bcrypt'
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cors from "cors";
-import pool from "./db";
 import { User } from "./interfaces/UserInterface";
-import crypto from 'crypto'
+import crypto from "crypto";
+import { Pool } from "pg";
 const app = express();
 
 const PORT = 3000;
@@ -17,12 +17,11 @@ app.use(express.json());
 
 app.use(cors());
 
-const generateUniqueUserId = (name: string, email: string): string =>  {
+const generateUniqueUserId = (name: string, email: string): string => {
   const dataToHash = name + email;
   const hash = crypto.createHash("md5").update(dataToHash).digest("hex");
   return hash;
-}
-
+};
 app.get("/users", async (req, res) => {
   try {
     const result = await pool.query<User>("SELECT * FROM users");
@@ -32,7 +31,29 @@ app.get("/users", async (req, res) => {
     res.status(500).json({ error: "Erro ao consultar o banco de dados" });
   }
 });
-
+// Verifique se a variável de ambiente DATABASE_URL está definida
+if (!process.env.DATABASE_URL) {
+  console.error('Variável de ambiente DATABASE_URL não definida.');
+  process.exit(1);
+}
+// Configuração do pool do pg usando a variável de ambiente DATABASE_URL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Você pode adicionar outras opções aqui, se necessário.
+});
+// Exemplo de rota para testar a conexão com o banco de dados
+app.get('/test', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT NOW() as current_time');
+    const currentTime = result.rows[0].current_time;
+    client.release();
+    res.send(`Conexão estabelecida com sucesso. Hora atual no banco de dados: ${currentTime}`);
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    res.status(500).send('Erro ao estabelecer conexão com o banco de dados.');
+  }
+});
 app.post("/users", async (req: Request, res: Response) => {
   try {
     const { name, email, password, birthdate } = req.body;
@@ -68,10 +89,9 @@ app.post("/login", async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // Verificar se o usuário com o email fornecido existe no banco de dados
-    const user = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
 
     // Se o usuário não for encontrado, retornar uma resposta com status 401 (Não Autorizado)
     if (user.rows.length === 0) {
@@ -85,14 +105,13 @@ app.post("/login", async (req: Request, res: Response) => {
     if (!passwordMatch) {
       return res.status(401).json({ error: "Credenciais inválidas" });
     }
-    const userId = user.rows[0].uuid
-  
-    const authToken = jwt.sign({userId}, "minhachavesecreta")
+    const userId = user.rows[0].uuid;
+
+    const authToken = jwt.sign({ userId }, "minhachavesecreta");
     // Se o usuário existir e a senha estiver correta, retornar uma resposta com status 200 (OK)
-    res.status(200).json({ uuid: userId, authToken: authToken});
+    res.status(200).json({ uuid: userId, authToken: authToken });
   } catch (err) {
     console.error("Erro ao fazer login:", err);
     res.status(500).json({ error: "Erro ao fazer login" });
   }
 });
-
