@@ -31,7 +31,7 @@ const pool = new Pool({
   // Você pode adicionar outras opções aqui, se necessário.
 });
 
-const db = knex(kConfig)
+const db = knex(kConfig.production)
 
 
 
